@@ -1,0 +1,90 @@
+<html>
+<body>
+<head>
+<script type="text/javascript">
+
+	function arrangeSno(tableId)
+	{
+		var tblObj = document.getElementById(tableId);
+		var no_of_rows = tblObj.rows.length;
+		
+		for(var i=0; i< no_of_rows-1;i++)
+		{
+			tblObj.rows[i+1].cells[0].innerHTML=i+1;
+		}
+	}
+	
+	function addPassanger(tableId)
+	{
+		var tblObj=document.getElementById(tableId);
+		var no_of_rows=tblObj.rows.length;
+	
+		var row_in_table=tblObj.insertRow(no_of_rows);
+		var colCount=tblObj.rows[0].cells.length;
+		var rno=eval(tblObj.rows[no_of_rows-1].cells[0].innerHTML)+1;
+		for(var i=0;i<colCount;i++)
+		{
+			var column_in_row=row_in_table.insertCell(i);
+			column_in_row.innerHTML=tblObj.rows[1].cells[i].innerHTML;
+			if(i==0) column_in_row.innerHTML=rno;
+	
+			switch(column_in_row.childNodes[0].type)
+			{
+				case "text":
+						column_in_row.childNodes[0].value="";
+						break;
+				case "checkbox":
+						column_in_row.childNodes[0].checked=false;
+						break;
+				case "select-one":
+						column_in_row.childNodes[0].selectedIndex=0;
+						break;
+			}
+		}
+	}
+
+	function deletePassasngerRow(tableId)
+	{
+		var tblObj=document.getElementById(tableId);
+		var delchkbox=document.bookingForm.delchk; 	
+		var no_of_rows=delchkbox.length;
+	
+		for(var i=0;i<no_of_rows;i++)
+		{
+			if(delchkbox[i].checked && tblObj.rows.length>=3)
+			{
+				tblObj.deleteRow(i+1);
+				no_of_rows--;
+				i--;
+			}
+		}
+		arrangeSno(tableId);
+	}
+</script>
+
+<form method="get" name="bookingForm" action="Process.jsp">
+<table id="PDetailsTable" border="1" width="350px">
+<tbody>
+
+	<tr><th>SNo</th><th>Item Name</th><th>Quantity</th><th>Rate</th><th>Select To Delete</th></tr>
+	<tr><th>1</th>
+		<th>
+			<select name="item">
+			
+			<option value="tv">T.V.</option>
+			<option value="fridge">Fridge</option>
+			<option value="radio">Radio</option>
+			</select>
+		</th>
+		<th><input type="text" name="Quantity" autofocus="true" placeholder="Enter Quantity"></th>
+		<th><input type="text" name="Rate" autofocus="true" placeholder="Enter Rate"></th>
+		<th><input name="delchk" type="checkbox"/></th>
+	</tr>
+</tbody>
+</table>
+<input type="button" value="Add more Entries" onclick="addPassanger('PDetailsTable')"/>
+<input type="button" value="Delete Row" onclick="deletePassasngerRow('PDetailsTable')"/>
+<input type="submit">
+</form>
+</body>
+</html>

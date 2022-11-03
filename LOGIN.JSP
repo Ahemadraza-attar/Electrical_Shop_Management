@@ -1,0 +1,78 @@
+
+
+<html>
+<head>
+
+<center> <font color="purple" size=10><i><b><marquee> ELECTRONIC SHOP MANAGEMENT SYSTEM </marquee></b></i></font> <center>
+</head>
+
+<body bgcolor="Silver">
+
+<img src="home.jpg" height="230px" width="1300px" border="5px">
+
+<form>
+<font size=6 color="blue">
+<br><br><input type="radio" name=A value="admin">ADMIN &nbsp;&nbsp;&nbsp;
+<input type="radio" name=A value="employee">EMPLOYEE<br><br></font>
+<br><font size = 5>  Username </font><input type="text" name="Username" required size="25" autofocus="true" placeholder="Enter Username">
+<br><br>
+
+<font size = 5>Password <input type="password" name="password" required size="25" autofocus="true" placeholder="8-10 characters">
+</font>
+<br><br>
+
+<center>
+<input type="submit" name="Login" value="Login"> &nbsp;&nbsp;&nbsp;
+<input type="reset" name="Cancel" value="Cancel">	</center><br><center>
+<br><A HREF="reg.jsp"><font size=5>NEW ADMIN</A><br>
+<br><br><A HREF="new1.html"><font size=5>ABOUT US</A>
+
+
+<%@page import="java.sql.*" %>
+<%@ page import="java.servlet.*"%>
+<%@ page import="java.servlet.http.*"%>
+<%
+
+	Statement st;
+        ResultSet rs;
+        Connection con;
+ 
+
+        String user = request.getParameter("Username");
+        String password = request.getParameter("password");
+        String choice = request.getParameter("A");
+        String sql = "select * from "+choice+" where login_id = '"+user+"' and password = '"+password+"';";
+
+
+        try{
+
+                Class.forName("org.postgresql.Driver");
+                con=DriverManager.getConnection("jdbc:postgresql://192.168.100.251/tydb9","ty9","shreyas@12345");
+                st=con.createStatement();
+                rs=st.executeQuery(sql);
+                if(rs.next())
+                {
+                        HttpSession s = request.getSession(true);
+                        s.setAttribute("email",user);
+
+
+
+                        if(choice.equals("admin"))
+                                response.sendRedirect("admin_menu.jsp");
+                        else if(choice.equals("employee"))
+                                response.sendRedirect("employee_menu.jsp");
+                 }
+                else
+                {
+                        out.print("<center> <font color=\"red\" > Username and password not found </font></center> ");
+                }
+        }catch(Exception e)
+        {
+        //out.print(e);
+        }
+
+
+%>
+</body>
+</html>
+
