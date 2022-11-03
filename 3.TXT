@@ -1,0 +1,200 @@
+  
+
+create table employee(e_id int primary key,login_id varchar(20) not null,password varchar(20) not null,e_name varchar(20) not null,phone_no numeric(10),address varchar(30),e_mail varchar(20));
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "employee1_pkey" for table "employee1"
+CREATE TABLE
+ \d employee1;
+           Table "public.employee1"
+  Column  |         Type          | Modifiers 
+----------+-----------------------+-----------
+ e_id     | integer               | not null
+ login_id | character varying(20) | not null
+ password | character varying(20) | not null
+ e_name   | character varying(20) | not null
+ phone_no | numeric(10,0)         | 
+ address  | character varying(30) | 
+ e_mail   | character varying(20) | 
+Indexes:
+    "employee1_pkey" PRIMARY KEY, btree (e_id)
+=================================================================================================
+ 
+tydb9=> \d customer;
+            Table "public.customer"
+  Column   |         Type          | Modifiers 
+-----------+-----------------------+-----------
+ cust_id   | integer               | not null
+ cust_name | character varying(20) | not null
+ address   | character varying(30) | 
+ phone_no  | numeric(10,0)         | 
+ e_mail    | character varying(20) | 
+Indexes:
+    "customer_pkey" PRIMARY KEY, btree (cust_id)
+Referenced by:
+    TABLE "bill_master" CONSTRAINT "bill_master_cust_id_fkey" FOREIGN KEY (cust_id) REFERENCES customer(cust_id)
+
+=================================================================================================
+ 
+  create table admin(login_id varchar(20) primary key,password varchar(20),a_name varchar(20),address varchar(30),phone_no numeric(10),e_mail varchar(20));
+
+ \d admin;
+             Table "public.admin"
+  Column  |         Type          | Modifiers 
+----------+-----------------------+-----------
+ login_id | character varying(20) | not null
+ password | character varying(20) | 
+ a_name   | character varying(20) | 
+ address  | character varying(30) | 
+ phone_no | numeric(10,0)         | 
+ e_mail   | character varying(20) | 
+Indexes:
+    "admin_pkey" PRIMARY KEY, btree (login_id)
+
+=================================================================================================
+ 
+tydb9=> \d item_master;
+          Table "public.item_master"
+  Column   |         Type          | Modifiers 
+-----------+-----------------------+-----------
+ item_id   | character varying(20) | not null
+ item_name | character varying(20) | not null
+ rate      | integer               | 
+ quantity  | integer               | 
+Indexes:
+    "item_master_pkey" PRIMARY KEY, btree (item_id)
+Check constraints:
+    "item_master_rate_check" CHECK (rate > 0)
+Referenced by:
+    TABLE "bill_details" CONSTRAINT "bill_details_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+    TABLE "purchase_details" CONSTRAINT "purchase_details_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+    TABLE "stock_details" CONSTRAINT "stock_details_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+    TABLE "supp_item" CONSTRAINT "supp_item_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+
+
+ 
+==============================================================================================
+
+ create table bill_master(bill_no int primary key,bill_date date ,total_amt int not null,cust_id int references customer);
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "bill_master_pkey" for table "bill_master"
+CREATE TABLE
+ \d bill_master;
+   Table "public.bill_master"
+  Column   |  Type   | Modifiers 
+-----------+---------+-----------
+ bill_no   | integer | not null
+ bill_date | date    | 
+ total_amt | integer | not null
+ cust_id   | integer | 
+Indexes:
+    "bill_master_pkey" PRIMARY KEY, btree (bill_no)
+Foreign-key constraints:
+    "bill_master_cust_id_fkey" FOREIGN KEY (cust_id) REFERENCES customer(cust_id)
+=================================================================================================
+
+ create table supplier_master(supp_id int primary key,supp_name varchar(20) not null ,phone_no numeric(10) not null,email varchar(30),address varchar(30));
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "supplier_master_pkey" for table "supplier_master"
+CREATE TABLE
+ \d supplier_master;
+        Table "public.supplier_master"
+  Column   |         Type          | Modifiers 
+-----------+-----------------------+-----------
+ supp_id   | integer               | not null
+ supp_name | character varying(20) | not null
+ phone_no  | numeric(10,0)         | not null
+ email     | character varying(30) | 
+ address   | character varying(30) | 
+Indexes:
+    "supplier_master_pkey" PRIMARY KEY, btree (supp_id)
+================================================================================================
+  
+ create table stock_details(item_name varchar(20) not null,item_id int references item_master,quantity int check(quantity>0),Date date);
+CREATE TABLE
+ \d stock_details;
+         Table "public.stock_details"
+  Column   |         Type          | Modifiers 
+-----------+-----------------------+-----------
+ item_name | character varying(20) | not null
+ item_id   | integer               | 
+ quantity  | integer               | 
+ date      | date                  | 
+Check constraints:
+    "stock_details_quantity_check" CHECK (quantity > 0)
+Foreign-key constraints:
+    "stock_details_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+=================================================================================================
+
+ create table bill_details(bill_no int references bill_master,item_id int references item_master,quantity int check(quantity>0),rate int );
+CREATE TABLE
+ tydb9=> \d bill_details;
+  Table "public.bill_details"
+  Column  |  Type   | Modifiers 
+----------+---------+-----------
+ bill_no  | integer | 
+ item_id  | integer | 
+ quantity | integer | 
+ rate     | integer | 
+Check constraints:
+    "bill_details_quantity_check" CHECK (quantity > 0)
+Foreign-key constraints:
+    "bill_details_bill_no_fkey" FOREIGN KEY (bill_no) REFERENCES bill_master(bill_no)
+    "bill_details_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+
+================================================================================================  
+
+ create table purchase_master(bill_no int primary key,bill_date date,total_amt varchar(30)not null,supp_id int references supplier_master);
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "purchase_master_pkey" for table "purchase_master"
+CREATE TABLE
+ \d purchase_master;
+        Table "public.purchase_master"
+  Column   |         Type          | Modifiers 
+-----------+-----------------------+-----------
+ bill_no   | integer               | not null
+ bill_date | date                  | 
+ total_amt | character varying(30) | not null
+ supp_id   | integer               | 
+Indexes:
+    "purchase_master_pkey" PRIMARY KEY, btree (bill_no)
+Foreign-key constraints:
+    "purchase_master_supp_id_fkey" FOREIGN KEY (supp_id) REFERENCES supplier_master(supp_id)
+
+==============================================================================================
+
+ create table supp_item(supp_id int references supplier_master,item_id int references item_master,rate int check(rate>0) );
+CREATE TABLE
+ \d supp_item;
+   Table "public.supp_item"
+ Column  |  Type   | Modifiers 
+---------+---------+-----------
+ supp_id | integer | 
+ item_id | integer | 
+ rate    | integer | 
+Check constraints:
+    "supp_item_rate_check" CHECK (rate > 0)
+Foreign-key constraints:
+    "supp_item_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+    "supp_item_supp_id_fkey" FOREIGN KEY (supp_id) REFERENCES supplier_master(supp_id)
+
+=================================================================================================
+  
+  create table purchase_details(bill_no int references purchase_master,item_id int references item_master,quantity int check(quantity>0),rate int,amount numeric(10));
+CREATE TABLE
+ \d purchase_details;
+   Table "public.purchase_details"
+  Column  |     Type      | Modifiers 
+----------+---------------+-----------
+ bill_no  | integer       | 
+ item_id  | integer       | 
+ quantity | integer       | 
+ rate     | integer       | 
+ amount   | numeric(10,0) | 
+Check constraints:
+    "purchase_details_quantity_check" CHECK (quantity > 0)
+Foreign-key constraints:
+    "purchase_details_bill_no_fkey" FOREIGN KEY (bill_no) REFERENCES purchase_master(bill_no)
+    "purchase_details_item_id_fkey" FOREIGN KEY (item_id) REFERENCES item_master(item_id)
+=============================================================================================================================================================
+
+
+ 
+
+
+
